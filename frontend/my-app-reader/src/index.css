@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+/* Important: ne pas limiter root */
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
