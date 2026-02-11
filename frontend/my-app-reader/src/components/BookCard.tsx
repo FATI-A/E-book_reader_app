@@ -1,42 +1,54 @@
 import React from "react";
-import { Card, CardContent } from "./ui/card";
-
+import { useNavigate } from "react-router-dom";
 export type Book = {
   id: number;
+  authors: string;
+  categories: string;
+  description: string;
+  downloadCount: number;
+  gutenbergId: number;
+  imageUrl: string;
+  language : string;
+  pagerankScore: number;
+  textUrl: string;
   title: string;
-  author: string;
-  cover: string;
-};
+  topWords: string[];
+  wordCount: number;
+}
 
-export default function BookCard({ book }: { book: Book }) {
+interface BookCardProps {
+  book: Book;
+}
+
+export default function BookCard({ book }: BookCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/books/${book.id}`);
+  };
+
   return (
-    <Card className="group rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-      <CardContent className="p-3">
-        <div className="relative overflow-hidden rounded-xl bg-gray-100">
-          <div className="aspect-[3/4] w-full">
-            {book.cover ? (
-              <img
-                src={book.cover}
-                alt={book.title}
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                loading="lazy"
-              />
-            ) : (
-              <div className="h-full w-full" />
-            )}
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-        </div>
+    <div
+      onClick={handleClick}
+      className="cursor-pointer glass snap-start w-[220px] min-w-[220px] max-w-[220px] 
+                 rounded-xl p-4 flex flex-col h-[360px] hover:scale-105 transition-transform"
+    >
+      <div className="relative rounded-lg overflow-hidden flex-[0_0_80%]">
+        {book.imageUrl ? (
+          <img
+            src={book.imageUrl}
+            alt={book.title}
+            className="w-full h-full object-cover object-center"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-700" />
+        )}
+      </div>
 
-        <div className="mt-3">
-          <p className="line-clamp-1 text-base font-semibold text-gray-900">
-            {book.title}
-          </p>
-          <p className="mt-1 line-clamp-1 text-sm font-medium text-gray-500">
-            {book.author}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="mt-auto space-y-1 min-h-[80px]">
+        <h4 className="font-semibold line-clamp-2">{book.title}</h4>
+        <p className="text-sm text-slate-400 line-clamp-1">{book.authors}</p>
+      </div>
+    </div>
   );
 }

@@ -1,26 +1,22 @@
 import React from "react";
 
-export type Genre = { id: number; name: string };
+interface GenreChipsProps {
+  genres: { id: number; name: string }[];
+}
 
-export default function GenreChips({
-  genres,
-  onClickGenre,
-}: {
-  genres: Genre[];
-  onClickGenre?: (g: Genre) => void;
-}) {
+const GenreChips: React.FC<GenreChipsProps> = ({ genres }) => {
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
-      {genres.map((g) => (
-        <button
-          key={g.id}
-          type="button"
-          onClick={() => onClickGenre?.(g)}
-          className="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
+    <div className="flex flex-wrap gap-3">
+      {genres.map((genre) => (
+        <span
+          key={genre.id}
+          className="glass px-4 py-2 rounded-full cursor-pointer"
         >
-          {g.name}
-        </button>
+          {genre.name}
+        </span>
       ))}
     </div>
   );
-}
+};
+
+export default GenreChips;

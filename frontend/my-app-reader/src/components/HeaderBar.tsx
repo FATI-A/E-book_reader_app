@@ -1,26 +1,46 @@
 import React from "react";
-import { Home as HomeIcon, UserCircle2 } from "lucide-react";
+import SearchBar from "./SearchBar";
 
-export default function HeaderBar() {
+interface HeaderBarProps {
+  isDarkMode: boolean;
+  setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearchResults?: (books: any[]) => void;
+}
+
+const HeaderBar: React.FC<HeaderBarProps> = ({
+  isDarkMode,
+  setIsDarkMode,
+  setSearchResults,
+}) => {
   return (
-    <header className="flex items-center justify-between py-5">
-      <button
-        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow transition"
-        aria-label="Home"
-      >
-        <HomeIcon className="h-6 w-6 text-gray-700" />
-      </button>
+    <header className="sticky top-0 z-50 glass">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-indigo-400">E-READER BOOK</h1>
+        <SearchBar onResults={setSearchResults || (() => {})} />
 
-      <h1 className="text-xl sm:text-2xl font-semibold tracking-wide">
-        E-READER BOOK
-      </h1>
+        <label className="relative inline-flex items-center cursor-pointer ml-4">
+          <input
+            type="checkbox"
+            checked={isDarkMode}
+            onChange={() => setIsDarkMode(!isDarkMode)}
+            className="sr-only"
+          />
+          <div
+            className={`w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full transition-colors ${
+              isDarkMode ? "bg-indigo-600" : "bg-gray-300"
+            }`}
+          ></div>
+          <span
+            className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${
+              isDarkMode ? "translate-x-6" : "translate-x-0"
+            }`}
+          ></span>
+        </label>
 
-      <button
-        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-900 text-white shadow-sm hover:opacity-90 transition"
-        aria-label="Profile"
-      >
-        <UserCircle2 className="h-6 w-6" />
-      </button>
+        <div className="w-[112px]" />
+      </div>
     </header>
   );
-}
+};
+
+export default HeaderBar;

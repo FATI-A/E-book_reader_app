@@ -1,25 +1,108 @@
-import React from "react";
-import { Search } from "lucide-react";
+import Typo from "typo-js";
+import React, { useState, useEffect } from "react";
 
-export default function SearchBar({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
+const isRegex = (value: string) => {
+  try {
+    new RegExp(value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const SearchBar: React.FC<{ onResults: (books: any[]) => void }> = ({ onResults }) => {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [dictionary, setDictionary] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(
+      "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.aff"
+    )
+      .then((res) => res.text())
+      .then((affData) => {
+        fetch(
+          "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.dic"
+        )
+          .then((res) => res.text())
+          .then((dicData) => {
+            const dict = new Typo("en_US", affData, dicData, {
+              platform: "any",
+            });
+            setDictionary(dict);
+          });
+      });
+  }, []);
+
+  const handleSearch = async (value: string) => {
+    const encoded = encodeURIComponent(value);
+
+    const url = isRegex(value)
+      ? `http://localhost:8081/api/books/search-regex?expression=${encoded}`
+      : `http://localhost:8081/api/books/search?keyword=${encoded}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      onResults(data);
+
+      if (dictionary && value.length > 0) {
+        const words = dictionary.suggest(value);
+        setSuggestions(words.slice(0, 5));
+      } else {
+        setSuggestions([]);
+      }
+    } catch (err) {
+      console.error("Erreur recherche :", err);
+      onResults([]);
+      setSuggestions([]);
+    }
+  };
+
+  const handleSelect = (word: string) => {
+    setQuery(word);
+    setSuggestions([]);
+    handleSearch(word);
+  }; // <-- ajoute cette accolade fermante
+
   return (
-    <div className="relative mt-2">
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-        <Search className="py-4 pl-12 pr-4 text-base sm:text-lg text-gray-900" />
-      </div>
-
+    <div className="relative w-full max-w-xl">
       <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Search for a book…"
-        className="w-full rounded-2xl border border-gray-200 bg-white py-3 pl-12 pr-4 text-gray-900 shadow-sm outline-none placeholder:text-gray-400 focus:border-gray-300 focus:shadow-md"
+        type="search"
+        value={query}
+        onChange={(e) => {
+          const value = e.target.value;
+          setQuery(value);
+
+          if (value.length > 2) {
+            handleSearch(value);
+          } else {
+            onResults([]);
+            setSuggestions([]);
+          }
+        }}
+        placeholder="Rechercher un livre, auteur ou genre..."
+        className="w-full px-4 py-2 pl-10 rounded-xl bg-slate-900/60 
+                   border border-slate-700 focus:outline-none 
+                   focus:ring-2 focus:ring-indigo-500"
       />
+
+      {/* Suggestions */}
+      {suggestions.length > 0 && (
+        <ul className="absolute w-full bg-white text-black rounded-xl shadow-lg mt-1 z-10">
+          {suggestions.map((word, idx) => (
+            <li
+              key={idx}
+              className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+              onClick={() => handleSelect(word)}
+            >
+              {word}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
-}
+};
+
+export default SearchBar;
