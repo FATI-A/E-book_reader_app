@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BookCard from "../BookCard";
 import HeaderBar from "../HeaderBar";
+import { useNavigate } from "react-router-dom";
 
 interface Book {
   id: number;
@@ -26,16 +27,20 @@ const Home: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [categoryBooks, setCategoryBooks] = useState<Book[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const navigate = useNavigate();
 
-  
   useEffect(() => {
     fetch("http://localhost:8081/api/books/top-categories")
       .then((res) => res.json())
       .then((data: [string, number][]) => {
         console.log("Catégories reçues :", data);
         const topGenres = data.slice(0, 8).map((c) => c[0]);
-
         setGenres(topGenres);
+
+        if (topGenres.length > 0) {
+          setSelectedCategory(topGenres[0]);
+          fetchCategoryBooks(topGenres[0]);
+        }
       })
       .catch((err) => console.error("Erreur fetch top categories:", err));
 
@@ -53,12 +58,14 @@ const Home: React.FC = () => {
       .catch((err) => console.error("Erreur fetch category books:", err));
   };
 
-  
+
   return (
     <div
-      className={`min-h-screen text-white ${"bg-gradient-radial from-slate-800 via-slate-900 to-slate-950"
-        }`}
-    >
+  className="min-h-screen text-white"
+  style={{
+    // background: "radial-gradient(1200px 600px at 50% 0%, rgba(0,0,0,.06), transparent 60%), var(--bg)"
+  }}
+>
       {/* NAVBAR */}
       <HeaderBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}
         setSearchResults={setSearchResults} />
@@ -74,7 +81,10 @@ const Home: React.FC = () => {
               Parcours les nouveautés, découvre des recommandations personnalisées et explore par genre.
             </p>
             <div className="flex gap-4">
-              <button className="bg-indigo-600 px-6 py-3 rounded-xl hover:bg-indigo-500">
+              <button
+                onClick={() => navigate("/allbooks")}
+                className="bg-indigo-600 px-6 py-3 rounded-xl hover:bg-indigo-500"
+              >
                 Explorer
               </button>
             </div>
@@ -89,15 +99,37 @@ const Home: React.FC = () => {
         </section>
 
         {searchResults.length > 0 && (
-          <section className="mt-6">
-            <h3 className="text-2xl font-bold mb-4"> Résultats de recherche</h3>
-            <div className="flex gap-4 overflow-x-auto pb-4">
+          <section className="mt-6 relative">
+            <h3 className="text-2xl font-bold mb-4">Résultats de recherche</h3>
+
+            <button
+              onClick={() => {
+                const container = document.getElementById("searchResults");
+                if (container) container.scrollBy({ left: -250, behavior: "smooth" });
+              }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/20 text-white text-3xl p-4 rounded-full hover:bg-white/40 transition"
+            >
+              ◀
+            </button>
+            <div
+              id="searchResults"
+              className="flex gap-4 overflow-x-hidden pb-4 scroll-smooth"
+            >
               {searchResults.map((book) => (
-                <div key={book.id} className="glass rounded-xl p-2">
+                <div key={book.id} className="glass rounded-xl p-2 hover:scale-105 transition-transform flex-none">
                   <BookCard book={book} />
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => {
+                const container = document.getElementById("searchResults");
+                if (container) container.scrollBy({ left: 250, behavior: "smooth" });
+              }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/20 text-white text-3xl p-4 rounded-full hover:bg-white/40 transition"
+            >
+              ▶
+            </button>
           </section>
         )}
         {/* GENRES */}
@@ -131,7 +163,7 @@ const Home: React.FC = () => {
 
               <div
                 id="categoryBooks"
-                className="flex gap-4 scroll-smooth pb-4 overflow-x-auto"
+                className="flex gap-4 scroll-smooth pb-4 overflow-x-hidden"
               >
                 {categoryBooks.map((book) => (
                   <button
@@ -174,7 +206,7 @@ const Home: React.FC = () => {
 
             <div
               id="popularBooks"
-              className="flex gap-4 scroll-smooth pb-4 overflow-x-auto"
+              className="flex gap-4 scroll-smooth pb-4 overflow-x-hidden"
             >
               {popularBooks.map((book) => (
                 <button

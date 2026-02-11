@@ -12,7 +12,7 @@ html, body, #root {
 :root{
   --bg-1:#f7f2ee;
   --bg-2:#fbf7f3;
-  --card:#ffffffcc;        
+  --card:#ffffffcc;
   --card-strong:#ffffffea;
   --text:#2a2a2a;
   --muted:#7a736d;
@@ -58,11 +58,12 @@ a:hover{ text-decoration: underline; }
   margin: 10px auto 14px;
   padding: 0 22px;
 }
+
 .book-details-page {
   min-height: 100vh;
   background: radial-gradient(
     circle at top,
-    #1e293b, 
+    #1e293b,
     #0f172a
   );
 }
@@ -95,7 +96,6 @@ a:hover{ text-decoration: underline; }
   pointer-events:none;
 }
 
-
 .heroGrid{
   display:grid;
   grid-template-columns: 320px 1fr;
@@ -104,7 +104,6 @@ a:hover{ text-decoration: underline; }
   position: relative;
   z-index: 1;
 }
-
 
 .coverWrap{
   display:flex;
@@ -122,7 +121,6 @@ a:hover{ text-decoration: underline; }
   border: 1px solid rgba(236, 227, 220, .9);
   background: #fff;
 }
-
 
 .breadcrumb{
   display:flex;
@@ -189,7 +187,6 @@ a:hover{ text-decoration: underline; }
   font-weight: 500;
 }
 
-
 .ctaRow{
   display:flex;
   flex-wrap: wrap;
@@ -213,7 +210,6 @@ a:hover{ text-decoration: underline; }
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
 }
 
-
 .btnPrimary{
   min-width: 240px;
   color: #fff;
@@ -236,7 +232,6 @@ a:hover{ text-decoration: underline; }
 .btnPrimary:hover{ transform: translateY(-1px); box-shadow: 0 14px 28px rgba(183,132,44,.28); }
 .btnPrimary:active{ transform: translateY(0px); box-shadow: 0 10px 22px rgba(183,132,44,.22); }
 
-
 .btnSecondary{
   min-width: 220px;
   color: #3a342f;
@@ -247,7 +242,6 @@ a:hover{ text-decoration: underline; }
 
 .btnSecondary:hover{ transform: translateY(-1px); box-shadow: 0 14px 28px rgba(30,20,10,.10); }
 .btnSecondary:active{ transform: translateY(0px); }
-
 
 .btnPrimary svg,
 .btnSecondary svg{
@@ -287,7 +281,6 @@ a:hover{ text-decoration: underline; }
   margin: 0 0 14px;
 }
 
-
 @media (max-width: 900px){
   .heroCard, .aboutCard, .cardSimple{ padding: 24px; }
   .heroGrid{
@@ -297,93 +290,178 @@ a:hover{ text-decoration: underline; }
   .coverImg{ width: 240px; }
   .btnPrimary, .btnSecondary{ min-width: 100%; }
 }
-/* Fond et perspective pour l'effet 3D */
+
+/* =========================================================
+   BOOK VIEW — même palette que la page Livre
+========================================================= */
+
+/* Fond et perspective */
 .book-scene {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: #dcd2c0; /* couleur papier autour du livre */
-  perspective: 2000px; /* perspective pour l'effet 3D */
+  min-height: 100vh;
+
+  background:
+    radial-gradient(900px 600px at 18% 12%, rgba(183,132,44,.10), transparent 60%),
+    radial-gradient(900px 700px at 82% 16%, rgba(183,132,44,.08), transparent 62%),
+    radial-gradient(1100px 900px at 82% 82%, rgba(183,132,44,.09), transparent 62%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
+
+  perspective: 2000px;
+  padding: 24px;
 }
 
 /* Livre global */
 .book {
   position: relative;
   width: 90%;
-  max-width: 1000px;
-  height: 80vh;
+  max-width: var(--container);
+  height: min(82vh, 820px);
   display: flex;
   transform-style: preserve-3d;
+
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  border: 1px solid rgba(236, 227, 220, .9);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  padding: 18px;
+}
+
+/* halo type heroCard */
+.book::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    radial-gradient(900px 380px at 55% 0%, rgba(255,255,255,.85), transparent 58%),
+    radial-gradient(700px 420px at 20% 20%, rgba(255,255,255,.55), transparent 55%);
+  pointer-events:none;
+}
+
+/* Inner (2 pages) — ajoute une div .book-inner dans ton HTML/JSX */
+.book-inner{
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+
+  background: var(--card-strong);
+  border: 1px solid rgba(236, 227, 220, .95);
+  box-shadow: var(--shadow-card);
 }
 
 /* Pages communes */
 .page {
   width: 50%;
   height: 100%;
-  background: #fffbe6;
-  border-radius: 0 20px 20px 0;
-  box-shadow: 0 5px 30px rgba(0,0,0,0.3);
   overflow: hidden;
-  transform-origin: left;
   position: relative;
+
+  background:
+    radial-gradient(700px 420px at 30% 10%, rgba(255,255,255,.72), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.70));
 }
 
-/* Page gauche avec rotation pour effet livre ouvert */
+/* Page gauche */
 .page.left {
-  border-radius: 20px 0 0 20px;
-  transform: rotateY(-5deg);
-  margin-right: -2px; /* superpose légèrement pour tranche */
+  border-right: 1px solid rgba(236, 227, 220, .95);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  transform: rotateY(-4deg);
+  transform-origin: right;
 }
 
-/* Page droite avec rotation */
+/* Page droite */
 .page.right {
-  border-radius: 0 20px 20px 0;
-  transform: rotateY(5deg);
-  margin-left: -2px;
+  border-left: 1px solid rgba(236, 227, 220, .95);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  transform: rotateY(4deg);
+  transform-origin: left;
 }
 
 /* Tranche au centre */
 .book-spine {
   position: absolute;
   left: 50%;
-  top: 0;
-  width: 4px;
-  height: 100%;
-  background: #ccc;
+  top: 18px;
+  width: 8px;
+  height: calc(100% - 36px);
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
   transform: translateX(-50%);
   z-index: 10;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 0 10px rgba(0,0,0,.22),
+    0 10px 20px rgba(30,20,10,.12);
 }
 
-/* Contenu des pages */
+/* Contenu des pages (txt/iframe/div) */
 .page-content {
   width: 100%;
   height: 100%;
   border: none;
-  background: transparent; /* <-- fond transparent */
-  padding: 20px;
+  background: transparent;
+  padding: 26px;
+  overflow: auto;
+
+  color: var(--text);
+  font-family: "Playfair Display", ui-serif, Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.85;
 }
+
+/* scroll discret */
+.page-content::-webkit-scrollbar{ width: 10px; }
+.page-content::-webkit-scrollbar-thumb{
+  background: rgba(183,132,44,.25);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.45);
+}
+.page-content::-webkit-scrollbar-track{ background: transparent; }
 
 /* Bouton retour */
 .btn-back {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 20;
+  top: 16px;
+  left: 16px;
+  z-index: 30;
   text-decoration: none;
-  font-weight: bold;
-  color: #333;
-  background: rgba(255,255,255,0.8);
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: 0.2s;
+  font-weight: 700;
+
+  color: var(--gold-ink);
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(236, 227, 220, .95);
+  box-shadow: 0 10px 22px rgba(30,20,10,.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  padding: 10px 14px;
+  border-radius: 14px;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 
 .btn-back:hover {
-  background: rgba(255,255,255,1);
-  color: #007bff;
+  background: rgba(255,255,255,.85);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(30,20,10,.10);
 }
 
-
-
+/* Mobile: 1 page */
+@media (max-width: 900px){
+  .book { height: min(84vh, 780px); }
+  .page.right { display:none; }
+  .page.left {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    transform: rotateY(-2deg);
+    transform-origin: center;
+  }
+  .book-spine{ display:none; }
+}

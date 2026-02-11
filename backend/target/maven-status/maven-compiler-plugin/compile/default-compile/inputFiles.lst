@@ -1,0 +1,7 @@
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\controller\BookController.java
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\model\Book.java
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\model\InvertedIndex.java
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\model\JaccardLink.java
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\repository\BookRepository.java
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\SearchEngineApplication.java
+C:\Users\Admin\source\CFA\moteurRech\E-book_reader_app\backend\src\main\java\com\example\searchengine\service\GraphService.java

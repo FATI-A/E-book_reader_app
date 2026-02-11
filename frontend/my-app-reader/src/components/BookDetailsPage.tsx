@@ -105,7 +105,7 @@ export default function BookDetailsPage() {
                 <button
                   className="btnPrimary"
                   type="button"
-                  onClick={() => navigate("/bookcontent", { state: { textUrl: book.textUrl } })}
+                  onClick={() => navigate("/bookcontent", { state: { id: book.gutenbergId } })}
                 >
                   <PlayIcon />
                   Lire le Livre
@@ -115,12 +115,12 @@ export default function BookDetailsPage() {
           </div>
         </section>
 
-        <section className="aboutCard">
+        <section className="aboutCard mb-16">
           <h2 className="aboutTitle">À propos du livre</h2>
           <p className="aboutText">{book.description}</p>
         </section>
 
-        <section className="pl-6>">
+        <section className="mt-50 px-6">
           <h3 className="text-2xl font-bold mb-4">Vous pouvez aimé aussi</h3>
           <div className="relative">
             <button

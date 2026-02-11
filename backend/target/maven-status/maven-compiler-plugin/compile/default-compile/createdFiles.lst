@@ -1,0 +1,10 @@
+com\example\searchengine\model\Book$BookBuilder.class
+com\example\searchengine\model\JaccardLink.class
+com\example\searchengine\repository\BookRepository.class
+com\example\searchengine\SearchEngineApplication.class
+com\example\searchengine\model\InvertedIndex.class
+com\example\searchengine\controller\BookController.class
+com\example\searchengine\model\JaccardLinkId.class
+com\example\searchengine\service\GraphService.class
+com\example\searchengine\model\Book.class
+com\example\searchengine\model\InvertedIndex$InvertedIndexBuilder.class

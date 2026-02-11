@@ -1,7 +1,9 @@
-import Typo from "typo-js";
 import React, { useState, useEffect } from "react";
 
 const isRegex = (value: string) => {
+  const regexSpecialChars = /[.*+?^${}()|[\]\\]/;
+
+  if (!regexSpecialChars.test(value)) return false;
   try {
     new RegExp(value);
     return true;
@@ -15,24 +17,24 @@ const SearchBar: React.FC<{ onResults: (books: any[]) => void }> = ({ onResults 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [dictionary, setDictionary] = useState<any>(null);
 
-  useEffect(() => {
-    fetch(
-      "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.aff"
-    )
-      .then((res) => res.text())
-      .then((affData) => {
-        fetch(
-          "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.dic"
-        )
-          .then((res) => res.text())
-          .then((dicData) => {
-            const dict = new Typo("en_US", affData, dicData, {
-              platform: "any",
-            });
-            setDictionary(dict);
-          });
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch(
+  //     "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.aff"
+  //   )
+  //     .then((res) => res.text())
+  //     .then((affData) => {
+  //       fetch(
+  //         "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.dic"
+  //       )
+  //         .then((res) => res.text())
+  //         .then((dicData) => {
+  //           const dict = new Typo("en_US", affData, dicData, {
+  //             platform: "any",
+  //           });
+  //           setDictionary(dict);
+  //         });
+  //     });
+  // }, []);
 
   const handleSearch = async (value: string) => {
     const encoded = encodeURIComponent(value);
@@ -41,6 +43,7 @@ const SearchBar: React.FC<{ onResults: (books: any[]) => void }> = ({ onResults 
       ? `http://localhost:8081/api/books/search-regex?expression=${encoded}`
       : `http://localhost:8081/api/books/search?keyword=${encoded}`;
 
+    
     try {
       const res = await fetch(url);
       const data = await res.json();
