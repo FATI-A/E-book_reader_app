@@ -1,6 +1,7 @@
 import React from "react";
 import SearchBar from "./SearchBar";
 
+
 interface HeaderBarProps {
   isDarkMode: boolean;
   setIsDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
@@ -11,11 +12,14 @@ const HeaderBar: React.FC<HeaderBarProps> = ({
   isDarkMode,
   setIsDarkMode,
   setSearchResults,
-}) => {
+
+  
+}) => 
+  {
   return (
     <header className="sticky top-0 z-50 glass">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-indigo-400">E-READER BOOK</h1>
+        <h1 className="text-2xl font-bold text-white-400">E-READER BOOK</h1>
         <SearchBar onResults={setSearchResults || (() => {})} />
 
         <label className="relative inline-flex items-center cursor-pointer ml-4">

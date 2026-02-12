@@ -20,7 +20,6 @@ interface Book {
 }
 
 const Home: React.FC = () => {
-  const [books] = useState<Book[]>([]);
   const [popularBooks, setPopularBooks] = useState<Book[]>([]);
   const [genres, setGenres] = useState<string[]>([]);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -62,9 +61,6 @@ const Home: React.FC = () => {
   return (
     <div
   className="min-h-screen text-white"
-  style={{
-    // background: "radial-gradient(1200px 600px at 50% 0%, rgba(0,0,0,.06), transparent 60%), var(--bg)"
-  }}
 >
       {/* NAVBAR */}
       <HeaderBar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode}
@@ -140,7 +136,8 @@ const Home: React.FC = () => {
               <button
                 key={idx}
                 onClick={() => fetchCategoryBooks(genre)}
-                className="flex-1 min-w-[160px] glass px-4 py-2 rounded-full cursor-pointer hover:bg-indigo-600 transition text-center"
+                className="flex-1 min-w-[160px] glass px-4 py-2 rounded-full cursor-pointer hover:bg-indigo-600 transition text-center break-words"
+
               >
                 {genre}
               </button>

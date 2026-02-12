@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const isRegex = (value: string) => {
   const regexSpecialChars = /[.*+?^${}()|[\]\\]/;
@@ -15,26 +15,7 @@ const isRegex = (value: string) => {
 const SearchBar: React.FC<{ onResults: (books: any[]) => void }> = ({ onResults }) => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [dictionary, setDictionary] = useState<any>(null);
-
-  // useEffect(() => {
-  //   fetch(
-  //     "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.aff"
-  //   )
-  //     .then((res) => res.text())
-  //     .then((affData) => {
-  //       fetch(
-  //         "https://app.unpkg.com/typo-js@1.2.4/dictionaries/en_US/en_US.dic"
-  //       )
-  //         .then((res) => res.text())
-  //         .then((dicData) => {
-  //           const dict = new Typo("en_US", affData, dicData, {
-  //             platform: "any",
-  //           });
-  //           setDictionary(dict);
-  //         });
-  //     });
-  // }, []);
+  const [dictionary] = useState<any>(null);
 
   const handleSearch = async (value: string) => {
     const encoded = encodeURIComponent(value);

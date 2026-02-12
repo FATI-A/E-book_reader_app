@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import BookCard from "../components/BookCard";
 
@@ -103,7 +103,7 @@ export default function BookDetailsPage() {
 
               <div className="ctaRow">
                 <button
-                  className="btnPrimary"
+                  className="btnPrimary bg-indigo-600"
                   type="button"
                   onClick={() => navigate("/bookcontent", { state: { id: book.gutenbergId } })}
                 >
@@ -121,7 +121,7 @@ export default function BookDetailsPage() {
         </section>
 
         <section className="mt-50 px-6">
-          <h3 className="text-2xl font-bold mb-4">Vous pouvez aimé aussi</h3>
+          <h3 className="text-2xl font-bold text-white mb-4">Vous pouvez aimé aussi</h3>
           <div className="relative">
             <button
               onClick={() => {
@@ -135,7 +135,7 @@ export default function BookDetailsPage() {
 
             <div
               id="recommendedBooks"
-              className="flex gap-4 scroll-smooth pb-4 overflow-x-auto"
+              className="flex gap-4 scroll-smooth pb-4 overflow-x-hidden"
             >
               <div className="flex-none w-4 md:w-6 lg:w-8"></div>
 

@@ -1,33 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
 
 type Theme = "light" | "sepia" | "dark";
 
 export default function BookContentPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { id } = location.state as { id: number };
-  console.log("id :", id);
 
-
-  // const  textUrl = "https://www.gutenberg.org/cache/epub/" + id + "/pg" + id + ".txt";
   const textUrl = `/api-gutenberg/cache/epub/${id}/pg${id}.txt`;
-  console.log("URL du texte à charger :", textUrl);
 
-  // UI settings
+
   const [theme, setTheme] = useState<Theme>("sepia");
   const [fontScale, setFontScale] = useState(1.0);
   const [lineHeight, setLineHeight] = useState(1.7);
   const [font, setFont] = useState<"serif" | "sans">("serif");
   const [panelOpen, setPanelOpen] = useState(false);
 
-  // Content
   const [raw, setRaw] = useState<string>("");
   const [pages, setPages] = useState<string[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // Reader size (for pagination)
   const readerRef = useRef<HTMLDivElement | null>(null);
 
   const cssVars = useMemo(() => {
@@ -47,14 +43,17 @@ export default function BookContentPage() {
       "--paper": themes[theme].paper,
       "--ink": themes[theme].ink,
       "--muted": themes[theme].muted,
-      "--accent": "#b8905a",
+      "--accent": "#f9efe2",
       "--fontFamily": family,
-      "--fontSize": `${16 * fontScale}px`,
-      "--lineHeight": String(lineHeight)
+      "--fontSize": `${13 * fontScale}px`,
+      "--lineHeight": String(lineHeight),
+      
     } as React.CSSProperties;
   }, [theme, font, fontScale, lineHeight]);
 
-  // Load TXT
+  const goBack = () => {
+    navigate(`/books/${id}`);
+  };
   useEffect(() => {
     let cancelled = false;
 
@@ -68,7 +67,7 @@ export default function BookContentPage() {
         const text = await res.text();
 
         if (!cancelled) {
-          setRaw(text.replace(/\r\n/g, "\n")); // normalize
+          setRaw(text.replace(/\r\n/g, "\n"));
           setPageIndex(0);
         }
       } catch (e: any) {
@@ -84,22 +83,17 @@ export default function BookContentPage() {
     };
   }, [textUrl]);
 
-  // Paginate (re-run when content or settings or size changes)
   useEffect(() => {
     if (!raw) return;
 
     const el = readerRef.current;
     if (!el) return;
 
-    // We'll create pages by filling the visible height with paragraphs.
-    // This avoids complicated measuring per character.
-    // Strategy: split text into paragraphs, then pack into pages until overflow.
     const paragraphs = raw
       .split(/\n{2,}/g)
       .map(p => p.trim())
       .filter(Boolean);
 
-    // A hidden measuring div inside the reader
     const measure = document.createElement("div");
     measure.style.position = "absolute";
     measure.style.visibility = "hidden";
@@ -132,10 +126,8 @@ export default function BookContentPage() {
         continue;
       }
 
-      // If adding this paragraph overflowed, flush current page first
       flush();
 
-      // Paragraph itself might be too large: split it by sentences as fallback
       measure.textContent = p;
       if (measure.scrollHeight <= maxHeight) {
         current = p;
@@ -165,10 +157,8 @@ export default function BookContentPage() {
     setPageIndex(i => Math.min(i, Math.max(0, newPages.length - 1)));
   }, [raw, fontScale, lineHeight, font]);
 
-  // Re-paginate on resize
   useEffect(() => {
     const onResize = () => {
-      // trigger re-run by touching state: easiest is to set fontScale to same value
       setFontScale(v => v);
     };
     window.addEventListener("resize", onResize);
@@ -191,11 +181,21 @@ export default function BookContentPage() {
       <style>{styles}</style>
 
       <div className="br-shell">
+        
+        <button className="br-iconbtn" onClick={goBack} title="Retour">⟵</button>
+        <div className="br-headerOutside">
+          <div className="br-title">Contenu du livre</div>
+          <div className="br-subtitle">Lecture</div>
+        </div>
         <div className="br-topbar">
-          <div className="br-crumb">Bibliothèque &nbsp;›&nbsp; Livre</div>
           <div className="br-actions">
-            <button className="br-iconbtn" onClick={prev} title="Précédent">⟵</button>
-            <button className="br-iconbtn" onClick={() => setPanelOpen(v => !v)} title="Paramètres">⚙︎</button>
+            <button
+              className="br-iconbtn br-settingsBtn"
+              onClick={() => setPanelOpen(v => !v)}
+              title="Paramètres"
+            >
+              ⚙︎
+            </button>
           </div>
         </div>
 
@@ -203,8 +203,6 @@ export default function BookContentPage() {
           <div className="br-spread">
             {/* Page gauche */}
             <section className="br-page">
-              <div className="br-title">Contenu du livre</div>
-              <div className="br-subtitle">Lecture</div>
 
               <div className="br-progressRow">
                 <div className="br-bar"><div className="br-barFill" style={{ width: `${progress}%` }} /></div>
@@ -215,9 +213,11 @@ export default function BookContentPage() {
                 {loading && <div className="br-info">Chargement…</div>}
                 {err && <div className="br-error">Impossible de charger le TXT : {err}</div>}
                 {!loading && !err && (
+                   <div className="br-flipPage" key={pageIndex}>
                   <article className="br-content">
                     {pages[pageIndex] || ""}
                   </article>
+                    </div>
                 )}
               </div>
 
@@ -237,8 +237,13 @@ export default function BookContentPage() {
 
             {/* Page droite : panneau “Paramètres” décor */}
             <section className="br-page br-right">
-              <div className="br-rightTitle">Paramètres</div>
-              <div className="br-rightHint">Ici, le texte est stylé comme un livre (police, interligne, thème) car on affiche le .txt directement.</div>
+              <div className="br-reader">
+                {!loading && !err && (
+                  <article className="br-content">
+                    {pages[pageIndex + 1] || ""}
+                  </article>
+                )}
+              </div>
             </section>
           </div>
 
@@ -305,31 +310,41 @@ export default function BookContentPage() {
 const styles = `
 .br-root{
   min-height:100vh;
-  background: radial-gradient(1200px 600px at 50% 0%, rgba(0,0,0,.06), transparent 60%), var(--bg);
+  background: radial-gradient(circle at top, #1e293b, #0f172a);
   display:flex; justify-content:center; align-items:center;
   padding:24px; box-sizing:border-box;
   color: var(--ink);
 }
-
-.br-shell{ width:min(1150px,100%); height:min(780px,92vh); display:flex; flex-direction:column; }
+.br-settingsBtn{
+  position: fixed;
+  right: 50px;
+  top: 20px;
+  z-index: 1000;
+}
+.br-shell{
+  width:1150px;height:1000px; display:flex; flex-direction:column; }
 .br-topbar{ display:flex; justify-content:space-between; align-items:center; padding: 6px 4px 12px; }
 .br-crumb{ opacity:.7; font-size:14px; }
 .br-actions{ display:flex; gap:10px; }
 .br-iconbtn{
   width:36px;height:36px;border-radius:999px;
-  border:1px solid var(--muted);
+   border: 1px solid #ffffff;
   background: transparent;
-  color: var(--ink);
+  color: #ffffff;
   cursor:pointer;
 }
 
 .br-book{
   flex:1;
-  background: linear-gradient(90deg, rgba(0,0,0,.08), transparent 8%, transparent 92%, rgba(0,0,0,.08));
+  background: #1e293b;
   border-radius:18px;
   padding:18px;
   overflow:hidden;
   position:relative;
+}
+  .br-headerOutside .br-title,
+.br-headerOutside .br-subtitle {
+  color: #ffffff;
 }
 
 .br-spread{
@@ -344,7 +359,7 @@ const styles = `
 }
 .br-spread:before{
   content:"";
-  position:absolute;left:50%;top:0;width:2px;height:100%;
+  position:absolute;left:50%;top:0;width:20px;height:100%;
   background: linear-gradient(to bottom, transparent, rgba(0,0,0,.18), transparent);
   opacity:.35; transform:translateX(-1px);
   pointer-events:none;
@@ -353,7 +368,9 @@ const styles = `
 .br-page{ position:relative; padding:26px 26px 80px; box-sizing:border-box; display:flex; flex-direction:column; gap:10px; }
 .br-title{ font-family: var(--fontFamily); font-size:26px; }
 .br-subtitle{ font-family: var(--fontFamily); font-size:34px; margin-top:-6px; }
-
+.br-page{
+  position: relative;
+}
 .br-progressRow{ display:flex; align-items:center; gap:10px; font-size:14px; opacity:.85; }
 .br-bar{ flex:1; height:6px; border-radius:999px; background: rgba(0,0,0,.12); overflow:hidden; }
 .br-barFill{ height:100%; background: var(--accent); width:0%; }
@@ -379,7 +396,7 @@ const styles = `
 
 .br-navRow{
   position:absolute; left:0; right:0; bottom:14px;
-  display:flex; justify-content:space-between; padding:0 26px; gap:10px;
+  display:flex; justify-content:space-between; padding:0 26px; gap:720px;
 }
 .br-navBtn{
   border:1px solid var(--muted);
@@ -416,6 +433,8 @@ const styles = `
   padding:14px;
   backdrop-filter: blur(14px);
   display:none;
+  margin-bottom: 550px;
+  margin-right: 50px;
 }
 .br-panel.open{ display:block; }
 .br-panel h3{ margin:0 0 12px; font-size:16px; font-weight:600; opacity:.95; }
@@ -429,8 +448,8 @@ const styles = `
   color:#fff; cursor:pointer; font-size:13px;
 }
 .br-chip.active{
-  background: rgba(184,144,90,.45);
-  border-color: rgba(184,144,90,.9);
+  background: rgb(79 70 229 / var(--tw-bg-opacity, 1));
+  border-color: rgb(79 70 229 / var(--tw-bg-opacity, 1));
 }
 .br-slider{ width:220px; }
 .br-info{ opacity:.7; }
@@ -440,5 +459,35 @@ const styles = `
   .br-spread{ grid-template-columns: 1fr; }
   .br-spread:before{ display:none; }
   .br-right{ display:none; }
+}
+  .br-navRow{
+  z-index: 10;
+}
+  .br-flipPage {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  backface-visibility: hidden;
+  position: relative;
+}
+
+.br-flipPage.enter {
+  transform: rotateY(-180deg);
+  opacity: 0;
+}
+
+.br-flipPage.enter-active {
+  transform: rotateY(0deg);
+  opacity: 1;
+}
+
+.br-flipPage.exit {
+  transform: rotateY(0deg);
+  opacity: 1;
+}
+
+.br-flipPage.exit-active {
+  transform: rotateY(180deg);
+  opacity: 0;
 }
 `;
